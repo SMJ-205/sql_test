@@ -1,0 +1,146 @@
+#Test No 1
+
+Create DATABASE test;
+
+CREATE TABLE OCCUPATIONS
+ (
+  Name varchar(255),
+  Occupation varchar(255)
+);
+
+Insert into OCCUPATIONS(Name, Occupation)
+Values 	('Satria','Dancer'),
+				('Juli','Actress'),
+				('Mario','Actress'),
+				('Memet','Salesman'),
+				('Alan','Photographer'),
+				('Kiky','Photographer'),
+				('Chacha','Photographer'),
+				('Joko','Actress'),
+				('Juni','Dancer'),
+				('Putra','Salesman');
+
+Select
+		Dancer,
+		Photographer,
+		Salesman,
+		Actress
+from
+(	Select 
+			orderbyname,
+			 max(case when Occupation='Dancer' then Name end) Dancer,
+			 max(case when Occupation='Photographer' then Name end) Photographer,
+			 max(case when Occupation='Salesman' then Name end) Salesman,
+			 max(case when Occupation='Actress' then Name end) Actress
+	from 
+	(	select
+				Name,
+				Occupation,
+				ROW_NUMBER() over (PARTITION by Occupation order by Name ASC) orderbyname
+		from OCCUPATIONS) listofname
+		group by orderbyname)
+		as Names;
+
+
+#alt
+With listofname as (
+	Select
+				Name,
+				Occupation,
+				ROW_NUMBER() over (PARTITION by Occupation order by Name ASC) orderbyname
+		from OCCUPATIONS
+		),
+		
+	orderlist as (
+	Select 
+			 orderbyname,
+			 max(case when Occupation='Dancer' then Name end) Dancer,
+			 max(case when Occupation='Photographer' then Name end) Photographer,
+			 max(case when Occupation='Salesman' then Name end) Salesman,
+			 max(case when Occupation='Actress' then Name end) Actress
+	from listofname
+	group by 1)
+	
+Select 
+		Dancer,
+		Photographer,
+		Salesman,
+		Actress
+from orderlist
+
+#Test No 2   
+
+CREATE TABLE HACKERS
+ (
+  hacker_id varchar(255),
+  name varchar(255)
+);
+
+Insert into HACKERS(hacker_id, name)
+Values 	('4072','Rosa'),
+				('4807','Anjani'),
+				('26072','Frodo'),
+				('49439','Palma'),
+				('74843','Lina'),
+				('80306','Kipuw'),
+				('84073','Boni'),
+				('87869','Mita'),
+				('92119','Toni'),
+				('95896','Joko');
+				
+Select * from HACKERS;
+
+CREATE TABLE SUBMISSIONS
+ (
+  submission_id varchar(255),
+  hacker_id varchar(255),
+	challenge_id varchar(255),
+	score int
+);
+
+Insert into SUBMISSIONS(submission_id, hacker_id, challenge_id, score)
+Values 	('67195','74843','63133',76),
+				('64480','74843','19798',98),
+				('40743','26072','49594',20),
+				('17514','4807','49594',32),
+				('69847','80306','19798',19),
+				('41003','26072','89344',36),
+				('52827','49439','49594',9),
+				('31094','26072','19798',2),
+				('81615','84073','49594',100),
+				('44830','26072','89344',17),
+				('75148','80306','49594',48),
+				('14116','4807','49594',76),
+				('6944','4072','19798',95),
+				('12856','4807','25918',13),
+				('73344','80306','49594',42),
+				('84265','84073','63133',0),
+				('9952','4072','49594',43),
+				('45105','49439','25918',34),
+				('53796','74843','19798',5),
+				('26364','26072','19798',29),
+				('10064','4072','49594',96);
+
+	
+with maxscore as 
+(
+Select 
+	hacker_id,
+	challenge_id,
+	max(score) score
+	from
+	SUBMISSIONS
+	group by 1,2
+	order by 1)
+	
+Select 
+		h.hacker_id,
+		h.name name,
+		sum(m.score) totalScore
+		from HACKERS h
+		left join maxscore m
+		on h.hacker_id = m.hacker_id
+		group by 1,2
+		having totalScore != 0
+		order by 3 desc, 1 asc;
+		
