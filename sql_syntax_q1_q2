@@ -20,29 +20,6 @@ Values 	('Satria','Dancer'),
 				('Juni','Dancer'),
 				('Putra','Salesman');
 
-Select
-		Dancer,
-		Photographer,
-		Salesman,
-		Actress
-from
-(	Select 
-			orderbyname,
-			 max(case when Occupation='Dancer' then Name end) Dancer,
-			 max(case when Occupation='Photographer' then Name end) Photographer,
-			 max(case when Occupation='Salesman' then Name end) Salesman,
-			 max(case when Occupation='Actress' then Name end) Actress
-	from 
-	(	select
-				Name,
-				Occupation,
-				ROW_NUMBER() over (PARTITION by Occupation order by Name ASC) orderbyname
-		from OCCUPATIONS) listofname
-		group by orderbyname)
-		as Names;
-
-
-#alt
 With listofname as (
 	Select
 				Name,
@@ -87,8 +64,6 @@ Values 	('4072','Rosa'),
 				('87869','Mita'),
 				('92119','Toni'),
 				('95896','Joko');
-				
-Select * from HACKERS;
 
 CREATE TABLE SUBMISSIONS
  (
